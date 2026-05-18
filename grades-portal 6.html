@@ -1,0 +1,486 @@
+<!DOCTYPE html>
+<html lang="ar" dir="rtl">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>بوابة درجات المتدربين</title>
+<link href="https://fonts.googleapis.com/css2?family=Tajawal:wght@300;400;500;700;800;900&display=swap" rel="stylesheet">
+<style>
+  :root {
+    --teal-dark: #0d4f5c;
+    --teal: #1a7a8a;
+    --teal-light: #2aa8bd;
+    --teal-pale: #e8f6f8;
+    --gold: #c9973a;
+    --gold-light: #f0c96e;
+    --white: #ffffff;
+    --gray-50: #f8fafb;
+    --gray-100: #eef2f4;
+    --gray-300: #b0bec5;
+    --gray-600: #546e7a;
+    --text-dark: #1a2f35;
+    --shadow: 0 8px 32px rgba(13,79,92,0.12);
+    --shadow-lg: 0 20px 60px rgba(13,79,92,0.18);
+  }
+
+  * { margin: 0; padding: 0; box-sizing: border-box; }
+
+  body {
+    font-family: 'Tajawal', sans-serif;
+    background: linear-gradient(135deg, #0d4f5c 0%, #1a7a8a 40%, #0a3540 100%);
+    min-height: 100vh;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: flex-start;
+    padding: 40px 20px;
+    position: relative;
+    overflow-x: hidden;
+  }
+
+  /* Decorative background circles */
+  body::before {
+    content: '';
+    position: fixed;
+    top: -120px; left: -120px;
+    width: 400px; height: 400px;
+    border-radius: 50%;
+    background: rgba(42,168,189,0.12);
+    pointer-events: none;
+  }
+  body::after {
+    content: '';
+    position: fixed;
+    bottom: -100px; right: -100px;
+    width: 350px; height: 350px;
+    border-radius: 50%;
+    background: rgba(201,151,58,0.1);
+    pointer-events: none;
+  }
+
+  /* Header */
+  .header {
+    text-align: center;
+    margin-bottom: 40px;
+    animation: fadeDown 0.7s ease both;
+  }
+  .logo-icon {
+    width: 72px; height: 72px;
+    background: linear-gradient(135deg, var(--gold), var(--gold-light));
+    border-radius: 20px;
+    display: flex; align-items: center; justify-content: center;
+    margin: 0 auto 18px;
+    box-shadow: 0 8px 24px rgba(201,151,58,0.35);
+    font-size: 32px;
+  }
+  .header h1 {
+    font-size: 2rem;
+    font-weight: 900;
+    color: var(--white);
+    letter-spacing: -0.5px;
+    margin-bottom: 8px;
+  }
+  .header p {
+    font-size: 1rem;
+    color: rgba(255,255,255,0.65);
+    font-weight: 400;
+  }
+
+  /* Search Card */
+  .search-card {
+    background: var(--white);
+    border-radius: 24px;
+    padding: 40px;
+    width: 100%;
+    max-width: 520px;
+    box-shadow: var(--shadow-lg);
+    animation: fadeUp 0.7s 0.15s ease both;
+    margin-bottom: 30px;
+  }
+
+  .search-card h2 {
+    font-size: 1.15rem;
+    font-weight: 700;
+    color: var(--teal-dark);
+    margin-bottom: 22px;
+    display: flex;
+    align-items: center;
+    gap: 10px;
+  }
+  .search-card h2::before {
+    content: '';
+    display: block;
+    width: 4px; height: 22px;
+    background: linear-gradient(180deg, var(--teal-light), var(--gold));
+    border-radius: 4px;
+  }
+
+  .input-group {
+    position: relative;
+    margin-bottom: 20px;
+  }
+  .input-group input {
+    width: 100%;
+    padding: 16px 20px;
+    border: 2px solid var(--gray-100);
+    border-radius: 14px;
+    font-family: 'Tajawal', sans-serif;
+    font-size: 1.05rem;
+    font-weight: 500;
+    color: var(--text-dark);
+    background: var(--gray-50);
+    transition: all 0.25s;
+    outline: none;
+    text-align: right;
+    direction: ltr;
+    letter-spacing: 1px;
+  }
+  .input-group input::placeholder { color: var(--gray-300); letter-spacing: 0; direction: rtl; }
+  .input-group input:focus {
+    border-color: var(--teal-light);
+    background: var(--white);
+    box-shadow: 0 0 0 4px rgba(42,168,189,0.1);
+  }
+
+  .btn-search {
+    width: 100%;
+    padding: 16px;
+    background: linear-gradient(135deg, var(--teal), var(--teal-light));
+    color: var(--white);
+    border: none;
+    border-radius: 14px;
+    font-family: 'Tajawal', sans-serif;
+    font-size: 1.05rem;
+    font-weight: 700;
+    cursor: pointer;
+    transition: all 0.25s;
+    display: flex; align-items: center; justify-content: center; gap: 8px;
+    letter-spacing: 0.3px;
+  }
+  .btn-search:hover { transform: translateY(-2px); box-shadow: 0 8px 24px rgba(26,122,138,0.35); }
+  .btn-search:active { transform: translateY(0); }
+  .btn-search:disabled { opacity: 0.6; cursor: not-allowed; transform: none; }
+
+  /* Spinner */
+  .spinner {
+    width: 20px; height: 20px;
+    border: 2px solid rgba(255,255,255,0.4);
+    border-top-color: white;
+    border-radius: 50%;
+    animation: spin 0.7s linear infinite;
+    display: none;
+  }
+  .loading .spinner { display: block; }
+  .loading .btn-text { display: none; }
+
+  /* Error */
+  .error-msg {
+    background: #fef3f2;
+    border: 1.5px solid #fca5a5;
+    color: #b91c1c;
+    border-radius: 12px;
+    padding: 14px 18px;
+    font-size: 0.95rem;
+    font-weight: 500;
+    margin-top: 16px;
+    display: none;
+    align-items: center;
+    gap: 8px;
+  }
+  .error-msg.show { display: flex; }
+
+  /* Results */
+  .results-container {
+    width: 100%;
+    max-width: 760px;
+    animation: fadeUp 0.5s ease both;
+    display: none;
+  }
+  .results-container.show { display: block; }
+
+  /* Student header card */
+  .student-header {
+    background: var(--white);
+    border-radius: 20px;
+    padding: 28px 32px;
+    margin-bottom: 20px;
+    box-shadow: var(--shadow);
+    display: flex;
+    align-items: center;
+    gap: 20px;
+  }
+  .student-avatar {
+    width: 64px; height: 64px;
+    background: linear-gradient(135deg, var(--teal-pale), #c8edf2);
+    border-radius: 16px;
+    display: flex; align-items: center; justify-content: center;
+    font-size: 28px;
+    flex-shrink: 0;
+  }
+  .student-info h3 {
+    font-size: 1.2rem;
+    font-weight: 800;
+    color: var(--teal-dark);
+    margin-bottom: 4px;
+  }
+  .student-info p {
+    font-size: 0.9rem;
+    color: var(--gray-600);
+    font-weight: 500;
+  }
+  .student-badge {
+    margin-right: auto;
+    background: var(--teal-pale);
+    color: var(--teal);
+    border-radius: 30px;
+    padding: 6px 16px;
+    font-size: 0.85rem;
+    font-weight: 700;
+    white-space: nowrap;
+  }
+
+  /* Course card */
+  .course-card {
+    background: var(--white);
+    border-radius: 20px;
+    margin-bottom: 16px;
+    box-shadow: var(--shadow);
+    overflow: hidden;
+    animation: fadeUp 0.4s ease both;
+  }
+  .course-header {
+    background: linear-gradient(135deg, var(--teal-dark), var(--teal));
+    padding: 18px 28px;
+    display: flex;
+    align-items: center;
+    gap: 12px;
+  }
+  .course-icon {
+    width: 38px; height: 38px;
+    background: rgba(255,255,255,0.15);
+    border-radius: 10px;
+    display: flex; align-items: center; justify-content: center;
+    font-size: 18px;
+    flex-shrink: 0;
+  }
+  .course-header h4 {
+    font-size: 1.05rem;
+    font-weight: 800;
+    color: var(--white);
+    flex: 1;
+  }
+  .course-ref {
+    font-size: 0.8rem;
+    color: rgba(255,255,255,0.65);
+    font-weight: 500;
+    background: rgba(255,255,255,0.12);
+    padding: 4px 12px;
+    border-radius: 20px;
+  }
+
+  .grades-grid {
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(130px, 1fr));
+    gap: 1px;
+    background: var(--gray-100);
+    border-top: 1px solid var(--gray-100);
+  }
+  .grade-cell {
+    background: var(--white);
+    padding: 20px 16px;
+    text-align: center;
+  }
+  .grade-label {
+    font-size: 0.78rem;
+    font-weight: 600;
+    color: var(--gray-600);
+    margin-bottom: 8px;
+    line-height: 1.4;
+  }
+  .grade-value {
+    font-size: 1.5rem;
+    font-weight: 900;
+    color: var(--teal-dark);
+  }
+  .grade-value.total {
+    color: var(--gold);
+    font-size: 1.8rem;
+  }
+  .grade-value.empty {
+    color: var(--gray-300);
+    font-size: 1rem;
+    font-weight: 500;
+  }
+  .grade-cell.total-cell {
+    background: linear-gradient(135deg, #fefbf3, #fdf6e3);
+  }
+
+  /* No results */
+  .no-results {
+    background: var(--white);
+    border-radius: 20px;
+    padding: 60px 40px;
+    text-align: center;
+    box-shadow: var(--shadow);
+  }
+  .no-results .icon { font-size: 52px; margin-bottom: 16px; }
+  .no-results h3 { font-size: 1.2rem; font-weight: 700; color: var(--teal-dark); margin-bottom: 8px; }
+  .no-results p { font-size: 0.95rem; color: var(--gray-600); }
+
+  /* Footer */
+  .footer {
+    margin-top: 40px;
+    text-align: center;
+    color: rgba(255,255,255,0.4);
+    font-size: 0.82rem;
+    animation: fadeDown 1s 0.5s ease both;
+  }
+
+  /* Animations */
+  @keyframes fadeDown {
+    from { opacity: 0; transform: translateY(-20px); }
+    to { opacity: 1; transform: translateY(0); }
+  }
+  @keyframes fadeUp {
+    from { opacity: 0; transform: translateY(20px); }
+    to { opacity: 1; transform: translateY(0); }
+  }
+  @keyframes spin { to { transform: rotate(360deg); } }
+
+  @media (max-width: 500px) {
+    .search-card { padding: 28px 22px; }
+    .student-header { flex-wrap: wrap; }
+    .student-badge { margin-right: 0; }
+    .grades-grid { grid-template-columns: repeat(2, 1fr); }
+  }
+</style>
+</head>
+<body>
+
+<div class="header">
+  <div class="logo-icon">🎓</div>
+  <h1>بوابة درجات المتدربين</h1>
+  <p>أدخل رقمك الجامعي لمشاهدة درجاتك</p>
+</div>
+
+<div class="search-card">
+  <h2>الاستعلام عن الدرجات</h2>
+  <div class="input-group">
+    <input type="text" id="studentId" placeholder="أدخل رقمك الجامعي" maxlength="20" inputmode="numeric"
+      onkeydown="if(event.key==='Enter') search()">
+  </div>
+  <button class="btn-search" id="searchBtn" onclick="search()">
+    <span class="btn-text">🔍 &nbsp; عرض الدرجات</span>
+    <div class="spinner"></div>
+  </button>
+  <div class="error-msg" id="errorMsg">
+    <span>⚠️</span>
+    <span id="errorText"></span>
+  </div>
+</div>
+
+<div class="results-container" id="results"></div>
+
+<div class="footer">جميع البيانات محفوظة ومؤمّنة &nbsp;•&nbsp; للاستفسار تواصل مع مشرفك التدريبي</div>
+
+<script>
+  const API_URL = 'https://script.google.com/macros/s/AKfycbyfqnk4vLfTYIJ-RjOrAdb0F53VjMZ0ZyoGzNnGRT_-tjNC9_hFNnWZ9AE_fkz_CynqoQ/exec';
+
+  function showError(msg) {
+    const el = document.getElementById('errorMsg');
+    document.getElementById('errorText').textContent = msg;
+    el.classList.add('show');
+  }
+  function hideError() {
+    document.getElementById('errorMsg').classList.remove('show');
+  }
+
+  async function search() {
+    const idInput = document.getElementById('studentId').value.trim();
+    hideError();
+    document.getElementById('results').classList.remove('show');
+    document.getElementById('results').innerHTML = '';
+
+    if (!idInput) {
+      showError('يرجى إدخال رقم جامعي');
+      return;
+    }
+
+    const btn = document.getElementById('searchBtn');
+    btn.classList.add('loading');
+    btn.disabled = true;
+
+    try {
+      const res = await fetch(`${API_URL}?id=${encodeURIComponent(idInput)}`);
+      const allMatches = await res.json();
+
+      const resultsEl = document.getElementById('results');
+
+      if (!allMatches || allMatches.length === 0) {
+        resultsEl.innerHTML = `
+          <div class="no-results">
+            <div class="icon">🔎</div>
+            <h3>لم يتم العثور على نتائج</h3>
+            <p>الرقم <strong>${idInput}</strong> غير موجود في السجلات.<br>تأكد من الرقم وحاول مجدداً.</p>
+          </div>`;
+        resultsEl.classList.add('show');
+        return;
+      }
+
+      const studentName = allMatches[0].name || 'متدرب';
+
+      let html = `
+        <div class="student-header">
+          <div class="student-avatar">👤</div>
+          <div class="student-info">
+            <h3>${studentName}</h3>
+            <p>الرقم الجامعي: ${idInput}</p>
+          </div>
+          <div class="student-badge">📚 ${allMatches.length} مقرر${allMatches.length > 1 ? 'ات' : ''}</div>
+        </div>`;
+
+      allMatches.forEach((m, idx) => {
+        const fmt = v => (v !== '' && v !== null && v !== undefined) ? '<span class="grade-value">'+v+'</span>' : '<span class="grade-value empty">—</span>';
+        const fmtT = v => (v !== '' && v !== null && v !== undefined) ? '<span class="grade-value total">'+v+'</span>' : '<span class="grade-value empty">—</span>';
+
+        let gradeCells = '';
+        let totalCell = '';
+        const grades = m.grades || [];
+
+        grades.forEach(function(g) {
+          if (g.isTotal) {
+            totalCell = '<div class="grade-cell total-cell"><div class="grade-label">' + g.label + '</div>' + fmtT(g.value) + '</div>';
+          } else {
+            gradeCells += '<div class="grade-cell"><div class="grade-label">' + g.label + '</div>' + fmt(g.value) + '</div>';
+          }
+        });
+
+        html += '<div class="course-card" style="animation-delay:' + (idx*0.08) + 's">' +
+          '<div class="course-header">' +
+          '<div class="course-icon">📖</div>' +
+          '<h4>' + m.sheet + '</h4>' +
+          (m.ref ? '<span class="course-ref">رقم: ' + m.ref + '</span>' : '') +
+          '</div>' +
+          '<div class="grades-grid">' + gradeCells + totalCell + '</div>' +
+          '</div>';
+      });
+
+      resultsEl.innerHTML = html;
+      resultsEl.classList.add('show');
+      resultsEl.scrollIntoView({ behavior: 'smooth', block: 'start' });
+
+    } catch(e) {
+      showError('حدث خطأ أثناء تحميل البيانات. حاول مرة أخرى.');
+      console.error(e);
+    } finally {
+      btn.classList.remove('loading');
+      btn.disabled = false;
+    }
+  }
+
+  document.getElementById('studentId').addEventListener('keydown', e => {
+    if (e.key === 'Enter') search();
+  });
+</script>
+</body>
+</html>
